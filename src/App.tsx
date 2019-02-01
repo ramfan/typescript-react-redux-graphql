@@ -1,28 +1,49 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react";
+import gql from "graphql-tag";
+import { graphql } from "react-apollo";
+import { connect } from "react-redux";
+import { actions } from "./store/store";
+import { TState } from "./store/store.d";
+import { IAppProps, IAppState } from "./App.d";
 
-class App extends Component {
+class App extends React.PureComponent<IAppProps, IAppState> {
+  constructor(props: IAppProps) {
+    super(props);
+    this.props.dispatch(actions.emptyAction());
+  }
   render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+    return [
+      <div>
+        <strong>Store response: </strong>
+        {this.props.emptyField}
+      </div>,
+      <div>
+        <strong>Server response: </strong>
+        {this.props.data.testQuery}
       </div>
-    );
+    ];
   }
 }
+/**
+ * with options
+ * const queryOptions  = {
+    options: props =>{
+            return {
+                variables: {
+                    id: props.match.params.token
+                }
+        }
+    }
+};
+ */
+const testQuery = gql`
+  query {
+    testQuery
+  }
+`;
 
-export default App;
+const mapStateToProps = (state: TState) => ({ emptyField: state.empty });
+
+export default graphql(testQuery /*, queryOptions */)(
+  connect(mapStateToProps)(App)
+);
